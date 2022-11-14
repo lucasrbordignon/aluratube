@@ -3,20 +3,35 @@ import config from "../config.json";
 import styled from "styled-components";
 import Menu from "../src/components/Menu/Index";
 import { StyledTimeline } from "../src/components/Timeline";
+import { videoService } from "../src/services/videoService";
 
 function HomePage() {
-
+  const [playlists, setPlaylists] = React.useState({});
   const [valorDoFiltro, setValorDoFiltro] = React.useState("");
+  const service = videoService();
+
+  React.useEffect(() => {
+    service.getAllVideos().then((dados) => {
+      console.log(dados.data);
+
+      const novasPlaylists = { ...playlists };
+      dados.data.forEach((video) => {
+        if (!novasPlaylists[video.playlist]) novasPlaylists[video.playlist] = [];
+        novasPlaylists[video.playlist].push(video);
+      });
+      setPlaylists(novasPlaylists);
+    });
+  }, []);
+
   return (
     <>
-      
       <div
         style={{
           display: "flex",
           flexDirection: "column",
           flex: 1,
-        }}>
-
+        }}
+      >
         <Menu
           valorDoFiltro={valorDoFiltro}
           setValorDoFiltro={setValorDoFiltro}
@@ -50,15 +65,15 @@ const StyledHeader = styled.div`
 `;
 
 const StyledBanner = styled.div`
-    background-color: blue;
-    background-image: url(${({ bg }) => bg});
-    height: 230px;
+  background-color: blue;
+  background-image: url(${({ bg }) => bg});
+  height: 230px;
 `;
 
 function Header() {
   return (
     <StyledHeader>
-      <StyledBanner bg={config.bg}/>
+      <StyledBanner bg={config.bg} />
       <section className="user-info">
         <img src={`https://github.com/${config.github}.png`} />
         <div>
